@@ -1,0 +1,178 @@
+---
+title: "EDPS 845 Assignment 2"
+author: "Catherine Brown"
+date: "May 17, 2016"
+output: html_document
+---
+
+## Data Structures
+
+### Vectors
+
+1. What are the six types of atomic vector? How does a list differ from an atomic vector?
+
+All elements of an atomic vector must be the same type, whereas the elements of a list can have different types.
+```{r}
+
+#numeric/double
+numvar <- c(1, 2.2, 3)
+#integer -- L suffix gives you an integer thather than a numeric 
+intvar <- c(1L, 2L, 3L)
+#complex
+
+#logical
+logvar <- c(TRUE,F)
+#character
+chrvar <- c("string", "other string")
+#raw -- creates vector of specified length where each value is 0
+rawvar <- raw(2)
+```
+
+
+2. What makes is.vector() and is.numeric() fundamentally different to is.list() and is.character()?
+
+is.vector() tests only if the object is a vector with no attributes apart from names, not whether something is a vector or not. Similarly, is.numeric returns TRUE for both integer and numeric/double vectors, not specifically numeric/double. It checks for "number-ness."
+
+On the other hand, is.vector and is.numeric test if something is that type. 
+
+3. Test your knowledge of vector coercion rules by predicting the output of the following uses of c():
+```{r}
+c(1, FALSE) 
+  # numeric
+c("a", 1) 
+  # character
+c(list(1), "a") 
+  # list
+c(TRUE, 1L)
+  # numeric
+```
+
+4. Why do you need to use unlist() to convert a list to an atomic vector? Why doesn’t as.vector() work?
+
+It won't work because lists are already vectors, and as.vector would just remove its list-related attributes. You have to unlist to make it a not-list vector and keep the attributes.
+
+5. Why is 1 == "1" true? Why is -1 < FALSE true? Why is "one" < 2 false?
+
+If the two arguments are different types of vectors, one is coerced into the type of the other, with the order of precedence being character, complex, numeric, integer, logial, and raw. 
+
+1 == "1" becomes "1" == "1" where both are character type. Since they're the 
+  same exact character, the statement is true.
+-1 < FALSE becomes -1 < 0 where both are numeric type and the statement is true
+"one" < 2 becomes "one" < "two" where both are characters and cannot be bigger
+  or smaller than eachother, so the statement is false.
+
+6. Why is the default missing value, NA, a logical vector? What’s special about logical vectors? (Hint: think about c(FALSE, NA_character_).)
+
+Since logicals are almost at the bottom of the vector-coercion food chain (only ahead of raw), they don't coerce other vectors "down" to that type. This is good for NA, because a missing value that could coercively change the type of an entire vector would be problematic, especially since NA is common in data sets.
+
+### Attributes and Factors
+
+1. An early draft used this code to illustrate structure():
+
+```{r}
+structure(1:5, comment = "my attribute") #> [1] 1 2 3 4 5
+```
+
+But when you print that object you don’t see the comment attribute. Why? Is the attribute missing, or is there something else special about it? (Hint: try using help.)
+
+R doesn't print the comment attribute, which is an exception to attributes in general. If you named the structure, then you could view the comment by using the following code:
+
+```{r}
+
+str <- structure(1:5, comment = "This is my structure.")
+comment(str) <- "Just a comment."
+
+```
+
+
+2. What happens to a factor when you modify its levels?
+
+It modifies the factor itself too. 
+```{r}
+f1 <- factor(letters)
+f1 #prints a, b, c...
+    
+levels(f1) <- rev(levels(f1)) #reverses the levels
+f1 #now prints z, w, x...
+```
+
+3. What does this code do? How do f2 and f3 differ from f1?
+
+```{r}
+#f1 created a vector where both the vector and the levels were in order
+
+f2 <- rev(factor(letters)) #creates a reversed vector with levels that are not
+  #reversed
+
+f3 <- factor(letters, levels = rev(letters)) #creates a vector with only the 
+  #levels reversed
+
+```
+
+### Matrices and Arrays
+
+1. What does dim() return when applied to a vector?
+NULL
+```{r}
+dim(f3)
+```
+
+2. If is.matrix(x) is TRUE, what will is.array(x) return?
+TRUE. A matrix is an array.
+```{r}
+a <- matrix(1:6, ncol = 3, nrow = 2)
+is.matrix(a)
+is.array(a)
+```
+
+3. How would you describe the following three objects? What makes them different to 1:5?
+
+```{r}
+x1 <- array(1:5, c(1, 1, 5)) #1 row, 1 column, 5 deep
+x2 <- array(1:5, c(1, 5, 1)) #1 row, 5 columns, 1 deep
+x3 <- array(1:5, c(5, 1, 1)) #5 rows, 1 column, 1 deep
+x4 <- array(1:5) #just has 1 row, no other specified dimensions
+
+x1
+x2
+x3
+x4
+```
+
+### Data Frames 
+
+1. What attributes does a data frame possess?
+
+Since it is a 2-dimensional structure consisting of equal-length vectors, a data frame shares properties of both the matrix and list. It has the attributes names (same as col.names), and row.names, and class. 
+
+```{r}
+dfm <- data.frame(x = 1:3, y = I(matrix(1:9, nrow = 3)))
+attributes(dfm)
+```
+
+2. What does as.matrix() do when applied to a data frame with columns of different types?
+```{r}
+df <- data.frame(x = 1:3) #data frame where x is integer type
+df$y <- list(1:2, 1:3, 1:4) #y is a list type
+class(df$x)
+class(df$y)
+df
+as.matrix(df) #the list y gets coerced into integer type
+```
+
+3. Can you have a data frame with 0 rows? What about 0 columns?
+Yep.
+```{r}
+dfe <- data.frame()
+dfe #returns "data frame with 0 columns and 0 rows"
+```
+
+
+## Subsetting
+
+1. How would you randomly permute the columns of a data frame? (This is an important technique in random forests.) Can you simultaneously permute the rows and columns in one step?
+
+2. How would you select a random sample of m rows from a data frame? What if the sample had to be contiguous (i.e., with an initial row, a final row, and every row in between)?
+
+3. How could you put the columns in a data frame in alphabetical order?
+
