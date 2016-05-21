@@ -1,0 +1,294 @@
+---
+title: "EDPS 845 Assignment 1"
+author: "Tony Albano"
+---
+
+## Overview
+
+Demonstrate your mastery of concepts and procedures covered in *An Introduction to R*, chapters 1 through 9. See Appendix A for examples.
+
+Complete this assignment by responding to each question below using your own original code, in addition to answering any questions. Follow Google's [R coding conventions](https://google.github.io/styleguide/Rguide.xml), and use [R markdown](http://rmarkdown.rstudio.com/index.html) formatting for your responses, with example R code written as
+
+```{r}
+# Comment within some example code
+```
+
+Your file should have an Rmd extension, and you should check that it compiles to HTML using the *Knit* command in RStudio (this runs `knitr::knit()` on the file). Note that you can already *Knit* this file to see how it works.
+
+## Exercises
+
+### Chapter 1
+
+1. Show that you can access the home page for the HTML R help menu, as well as help files for individual functions.
+
+```{r, eval = FALSE}
+#This will open html help
+help.start()
+
+#Both of the following will open the help file for the solve function 
+help(solve)
+?solve
+```
+
+2. Demonstrate correct and incorrect naming of R objects.
+
+```{r}
+#Best practice dictates NOT using periods, use _ instead
+#names can include a number, but cannot begin with a number
+#Every character matters and is case-sensitive
+
+#correct
+x1 <- c(1,2,3) #where x1 is the object
+X1 <- c(2,3,4) #different from lowercase x1
+
+#incorrect
+# 2x <- c(3,4,5)
+```
+
+3. How do you list all available objects in the R workspace? And how do you remove individual objects?
+
+```{r}
+# to display the objects which are currently stored within R
+objects()
+
+# to remove individual objects
+rm(x1,X1)
+```
+
+
+### Chapter 2
+
+1. Create and index a vector using a logical, integer, negative integer, and character vector.
+
+```{r}
+
+v1 <- 1:30 #creating a vextor that includes the integers 1, 2,...29, 30
+
+#logical vector index
+
+v1logical <- v1[v1%%2==0] #vector "v1logical" where only the values that are included are those for which the index vector in brackets is TRUE. Here, this would give you only the even values. 
+
+# positive integer index
+
+v1first10 <- v1[1:10] #vector that selects the first ten values of vector v1
+
+#negative integer index
+
+v1last10 <- v1[-(1:20)] #vector that excludes values 1-20 of vector v1
+
+#character vector index
+
+faces <- c(12, 11, 36, 24) #creates a vector of those values
+names(faces) <- c("happy", "angry", "neutral", "surprised") #assigns names to identify each component of a vector
+stim_list1 <- faces[c("neutral", "surprised")] #now I can create another vector comprised of the numeric mode values, without having to remember the specific numeric values because they have names
+
+```
+
+2. Create a simple data frame containing a numeric variable, character variable, and factor with at least 3 levels. Use the data frame to demonstrate how R codes and handles missing data. 
+
+### Chapter 3
+
+1. Demonstrate how to check and change the modes and attributes of R objects.
+
+```{r}
+
+mode(v1) #returns what the mode is; in this case, "numeric"
+length (v1) #returns the length; in this case, 30
+attributes(faces) #returns additional, non-instrinsic attributes, like names
+
+as.character(v1) #changes all numeric values in vector v1 to character mode
+as.integer(v1) #changes all characters in vector v1 back to integer mode
+
+v2 <- numeric() #creates empty vector of mode numeric
+length (v2) <-20 #makes the length 20, all missing values (NA)
+v2[5] <- 5.1 #makes the 5th value 5.1
+
+attr(v2, "dim") <- c(5,4) #changes the dimensions to a 5-by-4 matrix
+
+```
+
+
+### Chapter 4
+
+1. Complete the exercise on page 17, where you calculate 95% confidence intervals for state mean incomes.
+```{r}
+
+state <- c("tas", "sa", "qld", "nsw", "nsw", "nt", "wa", "wa","qld", "vic", "nsw", "vic", "qld", "qld", "sa", "tas","sa", "nt", "wa", "vic", "qld", "nsw", "nsw", "wa","sa", "act", "nsw", "vic", "vic", "act")
+
+statef <- factor(state) 
+
+incomes <- c(60, 49, 40, 61, 64, 60, 59, 54, 62, 69, 70, 42, 56,61, 61, 61, 58, 51, 48, 65, 49, 49, 41, 48, 52, 46,59, 46, 58, 43)
+
+incmeans <- tapply(incomes, statef, mean) #apply the mean() function to each group of income by levels of statef
+
+stderr <- function(x) sqrt(var(x)/length(x)) #creates a funciton to calculate standard error
+
+incster <- tapply (incomes, statef, stderr) #apply the newly created stderr function to each group of income by levels of statef
+
+ns <- table(statef) #get n for each state/providence
+
+qt (.025, ns-1) #returns CI with lower tail included for each n
+
+```
+
+
+2. In what order are the levels of ordered factors stored in?
+```{r}
+#They are stored in alphabetical order, or in the order they were specified to factor if they were specified explicitly
+
+ex1 <- c("blue", "red", "green")
+ex1f <- factor (ex1) #alphabetical
+
+
+ex1f2 <- factor(ex1, levels=c("blue", "red", "green"))
+levels(ex1f2) #specified order
+
+```
+
+### Chapter 5
+
+1. Create an array with dimensions `c(3, 6, 2)` and use it to demonstrate array indexing.
+```{r}
+a1 <- array(1:36, dim=c(3,6,2))
+a1
+
+a1[2,4,1] #finds an element at a specific dimension
+
+```
+
+2. Create a two dimensional array of 100 integers sampled with replacement from the vector 1:20, and use an index array to set the diagonal values to 0.
+```{r}
+a2 <- array(rep(1:20,length.out=20), dim = c(10,10))
+a2
+
+ad <- array(c(1:10, 1:10), dim=c(10,2))
+a2[ad] <- 0
+a2
+```
+
+3. Construct the same array using the `array()` function and using a vector with the `dim()` set. Prove they are the same.
+
+```{r}
+#I did it that way in 5.2, so...?
+```
+
+
+4. Use your array from 5.1, and another with the same dimensions, to demonstrate how arithmetic works with arrays.
+```{r}
+a3 <- array(2:37, dim=c(3,6,2))
+a1and3 <- 2*a1*a3+1
+a1and3
+```
+
+5. Show how to clear the dimensions of an array.
+```{r}
+vec <- as.vector(a2)
+vec
+```
+
+### Chapter 6
+
+1. Demonstrate the different ways of subsetting a list.
+```{r}
+Lst <- list(name="Fred", wife="Mary", no.children=3, child.ages=c(4,7,9))
+
+Lst$name #Fred
+Lst[["wife"]] #Mary
+Lst[[4]][2] #7
+```
+
+2. What is the difference between giving multiple lists to `list()` versus `c()`?
+```{r}
+#giving mulitple lists to 'list()'
+
+#creating some lists to work with
+Lst1 <- list(name="Catie",age=21,pets=1)
+Lst2 <- list(name="Bob",age=23,pets=6)
+Lst3 <- list(name="Mary",age=24,pets=0)
+
+Lst4 <- list(Lst1,Lst2,Lst3) #using list()
+Lst5 <- c(Lst1,Lst2,Lst3) #using c()
+
+#when you compare the printouts of both of these, you can see that the c() combined lists do not have double-bracket operators for each of the 3 lists that were combined.
+Lst4 
+Lst5 
+
+Lst4[[2]] [2] #to get Bob's age, it returns 23
+Lst5[[2]] [2] #NA, can't do it!
+
+#list() can combine lists that have elements of different types
+```
+
+3. How do data frames in R relate to lists?
+```{r}
+#A list or a matrix which satisfies the restrictions of a data frame can be coerced into a data frame using the function as.data.frame()
+```
+
+4. What is the purpose of `attach()`?
+```{r, eval = FALSE}
+#the function attach() makes data available to the R search path by taking the list or data frame as its argument
+
+summary(women$age) #refers to variable 'age' in this example imaginary data frame
+attach(women)
+summary(age) #unil you detach(), you don't have to write women$ to refer to each variable in that data frame
+```
+
+### Chapter 7
+
+1. Demonstrate the different approaches to reading in data from an external file.
+```{r, eval = FALSE}
+#input file form without row labels and with the first line as the column labels
+HousePrice <- read.table("houses.data", header=TRUE) #houses.data is the file and header = true specifies that the first line is the column labels
+
+inp <- scan("input.dat", list(id="", x=0, y=0)) #creates the object inp; input.dat is the file; the dummy list has named components
+
+data(package="rpart") #access data from a particular package
+```
+
+### Chapter 8
+
+1. Demonstrate the use of distribution functions to simulate data and calculate probabilities and quantiles.
+```{r, eval = FALSE}
+sim <- rnorm(100,0,1) #simulate a normal distribution of 100 characters with mean 0 and sd 1. 
+
+2*pt(-2.43, df = 13) #2-tailed p-value for t distribution
+
+qf(0.01, 2, 7, lower.tail = FALSE) #upper 1% point for an F(2, 7) distribution
+
+```
+
+2. Simulate data from a t distribution and check their normality.
+```{r}
+simt <- rt(300,299) #simulate t-dist
+stem(simt) #examine stem-and-leaf plot
+hist(simt) #examine histogram
+plot(ecdf(simt), do.points=FALSE, verticals=TRUE) #plot the distribution function
+shapiro.test(simt) #Shapiro-Wilk test
+ks.test(simt, "pnorm", mean = mean(simt), sd = sqrt(var(simt))) #One-sample Kolmogorov-Smirnov test
+```
+
+### Chapter 9
+
+1. What is the difference between `if() else` and `ifelse()`?
+```{r}
+#ifelse(test, what to return if test is true, what to return if test is false) is a vectorized version of the if/else concept that applies the test to each item of a vector and returns the true or false value for each item
+ex1 <- c(1:12)
+ifelse(ex1>=7,"upper","lower")
+
+#if() else evaluates a condition once, unless part of a for loop
+
+if (6<7) "RIGHT!" else "NO WAY!"
+```
+
+2. Demonstrate the use of a `for()` loop.
+```{r}
+#To get the square of each of the integers 1-5
+num1 = c(1:5)
+num1_sq = NULL
+
+for (i in 1:5) {
+num1_sq [i] = num1 [i]^2
+}
+print(num1_sq)
+```
+
